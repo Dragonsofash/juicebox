@@ -1,41 +1,12 @@
 const { client, getAllUsers, createUser } = require("./index");
 
-async function createInitialUsers() {
-  try {
-    console.log("Starting to create users...");
-
-    const albert = await createUser({
-      username: "albert",
-      password: "bertie99",
-    });
-    console.log(albert);
-
-    const sandra = await createUser({
-      username: "sandra",
-      password: "2sandy4me",
-    });
-    console.log(sandra);
-
-    const glamgal = await createUser({
-      username: "glamgal",
-      password: "soglam",
-    });
-    console.log(glamgal);
-
-    console.log("Finished creating users!");
-  } catch (error) {
-    console.error("Error creating users!");
-    throw error;
-  }
-}
-
 async function dropTables() {
   try {
     console.log("Starting to drop tables...");
 
     await client.query(`
-        DROP TABLE IF EXISTS users;
-      `);
+          DROP TABLE IF EXISTS users;
+        `);
 
     console.log("Finished dropping tables!");
   } catch (error) {
@@ -49,16 +20,49 @@ async function createTables() {
     console.log("Starting to build tables...");
 
     await client.query(`
-        CREATE TABLE users (
-          id SERIAL PRIMARY KEY,
-          username varchar(255) UNIQUE NOT NULL,
-          password varchar(255) NOT NULL
-        );
-      `);
+          CREATE TABLE users (
+            id SERIAL PRIMARY KEY,
+            username varchar(255) UNIQUE NOT NULL,
+            password varchar(255) NOT NULL,
+            name VARCHAR(255) NOT NULL,
+            location VARCHAR(255) NOT NULL,
+            active BOOLEAN DEFAULT true
+          );
+        `);
 
     console.log("Finished building tables!");
   } catch (error) {
     console.error("Error building tables!");
+    throw error;
+  }
+}
+
+async function createInitialUsers() {
+  try {
+    console.log("Starting to create users...");
+
+    await createUser({
+      username: "albert",
+      password: "bertie99",
+      name: "Albert",
+      location: "United States",
+    });
+    await createUser({
+      username: "sandra",
+      password: "2sandy4me",
+      name: "Sandra",
+      location: "United States",
+    });
+    await createUser({
+      username: "glamgal",
+      password: "soglam",
+      name: "Jessica",
+      location: "United States",
+    });
+
+    console.log("Finished creating users!");
+  } catch (error) {
+    console.error("Error creating users!");
     throw error;
   }
 }
