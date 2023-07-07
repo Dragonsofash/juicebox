@@ -79,10 +79,10 @@ async function createPost({ authorId, title, content, tags = [] }) {
       rows: [post],
     } = await client.query(
       `
-          INSERT INTO posts("authorId", title, content) 
-          VALUES($1, $2, $3) 
-          RETURNING *
-        `,
+      INSERT INTO posts("authorId", title, content) 
+      VALUES($1, $2, $3)
+      RETURNING *;
+    `,
       [authorId, title, content]
     );
 
@@ -207,6 +207,13 @@ async function getPostById(postId) {
       `,
       [postId]
     );
+
+    if (!post) {
+      throw {
+        name: "PostNotFoundError",
+        message: "Could not find a post with that postId",
+      };
+    }
 
     const {
       rows: [author],
