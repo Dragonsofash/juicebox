@@ -1,9 +1,18 @@
+// Acquiring variables
 const express = require("express");
 const postsRouter = express.Router();
 
-const { getAllPosts } = require("../db");
+const { getAllPosts, createPost, updatePost, getPostById } = require("../db");
 const { requireUser } = require("./utils");
 
+// Logging requests made to the /posts route
+postsRouter.use((req, res, next) => {
+  console.log("A request is being made to /posts");
+
+  next();
+});
+
+// filtering posts
 postsRouter.post("/", requireUser, async (req, res, next) => {
   const { title, content, tags = "" } = req.body;
 
@@ -17,20 +26,22 @@ postsRouter.post("/", requireUser, async (req, res, next) => {
 
   try {
     // add authorId, title, content to postData object
+    postData = { authorId, title, content };
     // const post = await createPost(postData);
+    const post = await createPost(postData);
     // this will create the post and the tags for us
     // if the post comes back, res.send({ post });
+    if (post) {
+      res.send({ post });
+    }
     // otherwise, next an appropriate error object
+    next();
   } catch ({ name, message }) {
     next({ name, message });
   }
 });
-postsRouter.use((req, res, next) => {
-  console.log("A request is being made to /posts");
 
-  next();
-});
-
+// Retrieving a list of posts from getAllPosts()
 postsRouter.get("/", async (req, res, next) => {
   try {
     const allPosts = await getAllPosts();
@@ -47,6 +58,7 @@ postsRouter.get("/", async (req, res, next) => {
   }
 });
 
+// Updating a post by postId
 postsRouter.patch("/:postId", requireUser, async (req, res, next) => {
   const { postId } = req.params;
   const { title, content, tags } = req.body;
@@ -82,6 +94,7 @@ postsRouter.patch("/:postId", requireUser, async (req, res, next) => {
   }
 });
 
+// deleting a post by postId
 postsRouter.delete("/:postId", requireUser, async (req, res, next) => {
   try {
     const post = await getPostById(req.params.postId);

@@ -1,17 +1,19 @@
+// Acquiring variables
 require("dotenv").config();
 const express = require("express");
 const usersRouter = express.Router();
+const jwt = require("jsonwebtoken");
+const { JWT_SECRET } = process.env;
+const { createUser, getAllUsers, getUserByUsername } = require("../db");
 
-const { getAllUsers } = require("../db");
-const { getUserByUsername } = require("../db");
-const { token } = require("morgan");
-
+// Logging requests made to the /users router
 usersRouter.use((req, res, next) => {
   console.log("A request is being made to /users");
 
   next();
 });
 
+// Retrieving a list of users from getAllUsers()
 usersRouter.get("/", async (req, res) => {
   const users = await getAllUsers();
 
@@ -20,19 +22,9 @@ usersRouter.get("/", async (req, res) => {
   });
 });
 
+// Logging in users
 usersRouter.post("/login", async (req, res, next) => {
   const { username, password } = req.body;
-  const jwt = require("jsonwebtoken");
-  const { JWT_SECRET } = process.env;
-
-  let token = jwt.sign(
-    { id: 1, username: "albert", password: "bertie99" },
-    JWT_SECRET
-  );
-  token;
-
-  const recoveredData = jwt.verify(token, JWT_SECRET);
-  recoveredData;
 
   // request must have both
   if (!username || !password) {
@@ -47,7 +39,8 @@ usersRouter.post("/login", async (req, res, next) => {
 
     if (user && user.password == password) {
       // create token & return to user
-      res.send({ message: "you're logged in!" });
+      const token = jwt.sign({ username, password }, JWT_SECRET);
+      res.send({ message: "you're logged in!", Token: token });
     } else {
       next({
         name: "IncorrectCredentialsError",
@@ -60,6 +53,7 @@ usersRouter.post("/login", async (req, res, next) => {
   }
 });
 
+// Registering users
 usersRouter.post("/register", async (req, res, next) => {
   const { username, password, name, location } = req.body;
 
