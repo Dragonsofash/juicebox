@@ -6,9 +6,9 @@ const client = new Client(
   {
     host: "localhost",
     port: 5432,
-    database: "juicebox_dev",
+    database: "juicebox-dev",
     user: "postgres",
-    password: "LyNx4paW5",
+    password: "password",
   }
 );
 
